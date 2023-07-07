@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Data
+@Data // Get set const hash... tudo gerado aqui
 @JsonInclude(JsonInclude.Include.NON_NULL)// a nivel de classe, ao passar para json, oculta os campos nulls
 @Entity
 @Table(name = "TB_USERS")

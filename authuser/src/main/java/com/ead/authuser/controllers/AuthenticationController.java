@@ -6,6 +6,7 @@ import com.ead.authuser.enums.UserStatus;
 import com.ead.authuser.enums.UserType;
 import com.ead.authuser.models.UserModel;
 import com.ead.authuser.services.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,8 @@ public class AuthenticationController {
 
         @PostMapping("/signup")//mapeia a URL /auth/signup para o método registerUser(), que manipula as
         // solicitações HTTP POST.
-        public ResponseEntity<Object> registerUSer(@RequestBody UserDto userDto){
+        public ResponseEntity<Object> registerUser(@RequestBody
+                                                           @JsonView(UserDto.UserView.RegistrationPost.class) UserDto userDto){
           if(userService.existsByUsername(userDto.getUsername())){
               return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is Alredy Taken!");
           }
@@ -36,7 +38,8 @@ public class AuthenticationController {
               return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is Alredy Taken!");
           }
             var userModel = new UserModel();
-            BeanUtils.copyProperties(userDto, userModel);
+            BeanUtils.copyProperties(userDto, userModel); //converte user dto em user model
+            //prencher atributos que não contemplam no userDTO
             userModel.setUserStatus(UserStatus.ACTIVE);
             userModel.setUserType(UserType.STUDENT);
             userModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
@@ -44,7 +47,5 @@ public class AuthenticationController {
             userService.save(userModel);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(userModel);
-
         }
-
 }
