@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 @RestController //mostra para o spring que está é uma classe bin que ele ira gerenciar
 @CrossOrigin(origins = "*", maxAge = 3600) // permitir acesso de qualquer lugar orign* * = todas origem. - a nivel de classe
 @RequestMapping("/users") // URI = users
@@ -33,6 +35,11 @@ public class UserController {
     public ResponseEntity<Page<UserModel>> getAllUsers(SpecificationTemplate.UserSpec spec,
                                                        @PageableDefault(page = 0, size =10, sort="userID", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<UserModel> userModelPage = userService.findAll(spec, pageable);
+        if(!userModelPage.isEmpty()){
+            for(UserModel user : userModelPage.toList()){
+                user.add(linkTo(methodOn(UserController.class).getOneUser(user.getUserID())).withSelfRel());
+            }
+        }
         return ResponseEntity.status(HttpStatus.OK).body(userModelPage);
     }
     @GetMapping("/{userId}")
